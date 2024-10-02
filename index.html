@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mario</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #e0e0e0;
+    }
+    #gameArea {
+      width: 800px;
+      height: 400px;
+background-image: url('file:///C:/Users/Admin/Desktop/tin/canh.jpg'); /* Đặt hình ảnh làm nền */
+      background-size: cover; /* Làm cho hình ảnh phủ đầy khu vực trò chơi */
+      border: 2px solid #000;
+      position: relative;
+      margin: 50px auto;
+      overflow: hidden;
+    }
+    #mario {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      width: 50px;
+      height: 50px;
+    }
+    #obstacle {
+      position: absolute;
+      bottom: 10px;
+      width: 50px;
+      height: 50px;
+      left: 600px; /* Vị trí cố định cho chướng ngại vật */
+    }
+    #questionBox {
+      display: none;
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: white;
+      border: 2px solid black;
+      padding: 20px;
+      z-index: 10;
+      width: 400px;
+    }
+    #questionBox button {
+      margin: 10px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border: 2px solid #000;
+      cursor: pointer;
+    }
+    #questionBox button:hover {
+      background-color: #ddd;
+    }
+    #levelIndicator {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: white;
+      border: 2px solid black;
+      padding: 10px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+<h1 style="text-align: center;">Mario Game</h1>
+<button onclick="startGame()" style="display: block; margin: 20px auto;">Start Game</button>
+
+<div id="gameArea">
+  <div id="levelIndicator">Ải 1</div>
+  <img id="mario" src="C:\Users\Admin\Desktop\tin\mario.png" alt="Mario">
+  <div id="obstacle" class="obstacle"></div>
+  <div id="questionBox">
+    <p id="question"></p>
+    <button onclick="answerQuestion('a')">A</button>
+    <button onclick="answerQuestion('b')">B</button>
+    <button onclick="answerQuestion('c')">C</button>
+    <button onclick="answerQuestion('d')">D</button>
+  </div>
+</div>
+
+<script>
+let mario = document.getElementById('mario');
+let obstacle = document.getElementById('obstacle');
+let marioX = 10;
+let questionIndex = 0;
+let questions = [
+  { question: "What is 2 + 2?", correct: 'a', options: ['4', '5', '6', '7'] },
+  { question: "What is the capital of France?", correct: 'b', options: ['Berlin', 'Paris', 'Madrid', 'Rome'] },
+  { question: "Which planet is closest to the sun?", correct: 'c', options: ['Earth', 'Mars', 'Mercury', 'Venus'] },
+  { question: "What is the largest ocean on Earth?", correct: 'd', options: ['Atlantic', 'Indian', 'Arctic', 'Pacific'] },
+  { question: "What is the boiling point of water?", correct: 'a', options: ['100°C', '90°C', '80°C', '70°C'] },
+  { question: "What year did WW2 end?", correct: 'b', options: ['1945', '1940', '1950', '1939'] },
+  { question: "What is the tallest mountain?", correct: 'c', options: ['K2', 'Kangchenjunga', 'Mount Everest', 'Lhotse'] },
+  { question: "What is 5 * 6?", correct: 'a', options: ['30', '28', '32', '26'] },
+  { question: "What is the chemical symbol for gold?", correct: 'b', options: ['Au', 'Ag', 'Pb', 'Fe'] },
+  { question: "What is the fastest land animal?", correct: 'c', options: ['Cheetah', 'Lion', 'Tiger', 'Horse'] },
+  { question: "What is the main ingredient in guacamole?", correct: 'd', options: ['Avocado', 'Tomato', 'Pepper', 'Onion'] },
+  { question: "What planet is known as the Red Planet?", correct: 'a', options: ['Mars', 'Earth', 'Jupiter', 'Venus'] },
+  { question: "What is the freezing point of water?", correct: 'b', options: ['0°C', '32°C', '100°C', '-10°C'] },
+  { question: "Who wrote 'Romeo and Juliet'?", correct: 'c', options: ['Shakespeare', 'Hemingway', 'Austen', 'Tolkien'] },
+  { question: "What is the largest mammal?", correct: 'd', options: ['Blue Whale', 'Elephant', 'Giraffe', 'Great White Shark'] },
+  { question: "How many continents are there?", correct: 'a', options: ['7', '5', '6', '8'] }
+];
+let currentLevel = 1;
+let isMoving = true;
+let levelIndicator = document.getElementById('levelIndicator');
+
+let obstacleImages = [
+  'file:///C:/Users/Admin/Desktop/tin/cay.jpg',  // Đường dẫn tuyệt đối đến hình ảnh chướng ngại vật
+  'file:///C:/Users/Admin/Desktop/tin/da.jpg',
+  'file:///C:/Users/Admin/Desktop/tin/nu.jpg',
+  // Thêm các đường dẫn khác tại đây
+];
+
+function startGame() {
+  marioX = 10;
+  mario.style.left = marioX + 'px';
+  currentLevel = 1;
+  questionIndex = 0;
+  document.getElementById('questionBox').style.display = 'none';
+  updateLevelIndicator();
+  isMoving = true;
+  updateObstacleImage(); // Cập nhật hình ảnh chướng ngại vật khi bắt đầu
+  moveMario();
+}
+
+function moveMario() {
+  if (isMoving) {
+    marioX += 5;
+    mario.style.left = marioX + 'px';
+
+    if (marioX >= 600 - 60 && marioX <= 600 - 50) {  
+      isMoving = false; // Dừng Mario khi chạm chướng ngại vật
+      showQuestion();
+      return;
+    }
+
+    if (marioX < 800) { // Mario di chuyển cho đến khi gặp chướng ngại vật
+      requestAnimationFrame(moveMario);
+    }
+  }
+}
+
+function showQuestion() {
+  document.getElementById('questionBox').style.display = 'block';
+  let q = questions[questionIndex];
+  document.getElementById('question').innerHTML = q.question;
+  let buttons = document.querySelectorAll('#questionBox button');
+  buttons[0].innerHTML = 'A: ' + q.options[0];
+  buttons[1].innerHTML = 'B: ' + q.options[1];
+  buttons[2].innerHTML = 'C: ' + q.options[2];
+  buttons[3].innerHTML = 'D: ' + q.options[3];
+}
+
+function answerQuestion(answer) {
+  let correctAnswer = questions[questionIndex].correct;
+  document.getElementById('questionBox').style.display = 'none';
+
+  if (answer === correctAnswer) {
+    questionIndex++;
+    currentLevel++;
+
+    if (currentLevel > questions.length) {
+      alert('Congratulations! You have completed the game.');
+      resetGame();
+    } else {
+      isMoving = true;
+      updateLevelIndicator();
+      updateObstacleImage(); // Cập nhật hình ảnh chướng ngại vật sau khi trả lời đúng
+      resetMarioPosition(); // Đưa Mario về vị trí ban đầu để chạy tiếp từ mỗi ải mới
+      moveMario(); // Tiếp tục di chuyển đến chướng ngại vật tiếp theo
+    }
+  } else {
+    alert('Wrong answer! Starting over.');
+    resetGame();
+  }
+}
+
+function resetMarioPosition() {
+  marioX = 10;
+  mario.style.left = marioX + 'px'; // Đưa Mario về vị trí ban đầu
+}
+
+function updateLevelIndicator() {
+  levelIndicator.innerText = 'Ải ' + currentLevel;
+}
+
+function resetGame() {
+  marioX = 10;
+  questionIndex = 0;
+  currentLevel = 1;
+  startGame();
+}
+
+function updateObstacleImage() {
+  obstacle.style.backgroundImage = `url(${obstacleImages[currentLevel - 1]})`;
+  obstacle.style.backgroundSize = 'contain';
+  obstacle.style.backgroundRepeat = 'no-repeat';
+  obstacle.style.backgroundPosition = 'center';
+}
+
+// Bắt đầu trò chơi khi nhấn nút
+startGame();
+</script>
+
+</body>
+</html>
