@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đừng Có Nhờn Hahaha</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    @font-face {  
+    font-family: 'Optima';  
+    src: url('path/to/optima.woff2') format('woff2'),  
+         url('path/to/optima.woff') format('woff');  
+}  
+    body {
+      display: flex;
+      
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-image: url('mm.png'); /* Đường dẫn tới ảnh nền */
+      background-size: cover; /* Phủ toàn bộ kích thước trang */
+      background-position: center;
+      background-repeat: no-repeat; /* Không lặp lại ảnh */
+    }
+
+    .game-container {
+      display: flex;
+      gap: 40px; /* Tăng khoảng cách giữa các khối */
+    }
+
+    /* Khối dọc chia 10 ô */
+    .progress-bar {
+      display: flex;
+      flex-direction: column;
+      width: 100px; /* Tăng chiều rộng của khối dọc */
+      height: 550px; /* Tăng chiều cao của khối dọc */
+      background-color: white; /* Nền trắng cho khối dọc */
+      border: 2px solid #000; /* Viền đen cho khối dọc */
+    }
+
+    .progress-bar .step {
+      flex: 1;
+      border: 1px solid #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px; /* Kích thước chữ trong ô */
+    }
+
+    .step.green {
+      background-color: #A7DCA5;
+    }
+
+    .step.gray {
+      background-color: #D3D3D3;
+    }
+
+    /* Trục và nhân vật */
+    .vertical-axis {
+      position: relative;
+      background-image: url('cauvong.jpg');
+      background-size: cover;
+      background-position: center; /* Căn giữa hình ảnh */
+      left: 30px; /* Căn lề trái của nhân vật */
+      width: 100px; /* Tăng chiều rộng của trục */
+      height: 550px; /* Tăng chiều cao của trục */
+      background-color: white; /* Nền trắng cho trục */
+      border: 2px solid #000; /* Viền đen cho trục */
+    }
+
+    .character {
+      position: absolute;
+      object-fit: cover;
+      width: 60px; /* Tăng kích thước của nhân vật */
+      height:50px; /* Tăng kích thước của nhân vật */
+      background-image: url('meo.png');
+      background-size: contain;
+      background-repeat: no-repeat; /* Không lặp lại hình ảnh */
+      background-position: center; /* Căn giữa hình ảnh */
+      left: 3px; /* Căn lề trái của nhân vật */
+      top: calc(100% - 50px * 1); /* Ban đầu nhân vật nằm ở ô 1 */
+      transition: top 0.5s;
+    }
+
+    /* Bảng chứa câu hỏi và đáp án */
+    .question-container {
+      background-color: rgba(0, 0, 0, 0.7); /* Nền tối cho bảng câu hỏi */
+      border: 2px solid #1A3969; /* Viền xanh lá cây */
+      padding: 20px;
+      color: white; /* Chữ màu trắng */
+      width: 900px; /* Tăng chiều rộng của bảng câu hỏi */
+      text-align: center;
+      border-radius: 10px; /* Bo góc nhẹ */
+      box-shadow: 0px 0px 10px #1A3969; /* Hiệu ứng bóng viền xanh lá */
+    }
+
+    .question {
+      font-size: 30px; /* Tăng kích thước chữ câu hỏi */
+            text-transform: uppercase; 
+            font-weight: bold;
+      margin-bottom: 100px;
+    }
+
+    /* Đáp án */
+    .answers {
+      display: grid; /* Sử dụng grid để chia thành 2 hàng, 2 cột */
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px; /* Khoảng cách giữa các nút đáp án */
+    }
+
+    .answers button {
+      padding: 50px; /* Tăng kích thước padding */
+      font-size: 30px; /* Tăng kích thước chữ cho đáp án */
+      font-family: 'Optima', sans-serif; 
+      text-transform: uppercase; 
+      color: #FF783B;
+      background-color: #FFECAE;
+      border: 1px solid #FFECAE;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .answers button:hover {
+      background-color: #AFDFEA;
+      color: #266CAC;
+    }
+    .petal {
+            position: absolute;
+            width: 30px;
+            top:0;
+            height: 30px;
+            background-image: url('hoa.png'); /* Đường dẫn đến hình ảnh cánh hoa */
+            background-size: cover;
+            opacity: 0.9;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(180vh) rotate(560deg);
+            }
+        }
+        #autoplay {
+            opacity: 0; /* Đặt độ mờ (0.0 đến 1.0) */
+            position: absolute; /* Sử dụng vị trí tuyệt đối */
+            top: 90%; /* Đặt vị trí từ trên cùng */
+            left: 45%; /* Đặt vị trí từ bên trái */
+            transform: translateX(-50%); /* Căn giữa thẻ */
+        }
+  </style>
+</head>
+
+<body>
+  <audio id="autoplay" controls>
+    <source src="nennhac.mp4" >
+  </audio>
+  <div class="game-container">
+    <!-- Khối dọc 10 ô -->
+    
+    <div class="progress-bar" id="progress-bar">
+      <div class="step" id="step-10">10</div>
+      <div class="step" id="step-9">9</div>
+      <div class="step" id="step-8">8</div>
+      <div class="step" id="step-7">7</div>
+      <div class="step" id="step-6">6</div>
+      <div class="step" id="step-5">5</div>
+      <div class="step" id="step-4">4</div>
+      <div class="step" id="step-3">3</div>
+      <div class="step" id="step-2">2</div>
+      <div class="step" id="step-1">1</div>
+    </div>
+
+    <!-- Trục và nhân vật -->
+    <div class="vertical-axis">
+      <div class="character" id="character"></div>
+    </div>
+
+    <!-- Câu hỏi -->
+    <div class="question-container">
+      <div id="question" class="question">Question 1: What is 2 + 2?</div>
+      <div class="answers">
+        <button id= "answerA" onclick="checkAnswer('A')">A. 3</button>
+        <button id="answerB" onclick="checkAnswer('B')">B. 4</button>
+        <button id="answerC" onclick="checkAnswer('C')">C. 5</button>
+        <button id="answerD" onclick="checkAnswer('D')">D. 6</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1; // Ban đầu nhân vật ở ô 1
+    let attemptsLeft = 3; // Số lượt chơi còn lại
+    let currentQuestionIndex = 0;
+    let shuffledQuestions = [];
+    const originalQuestions = [
+    { question: "AI có khả năng thực hiện các nhiệm vụ nào?", correct: "B", answers: { A: "Chơi thể thao", B: "Học tập và ra quyết định", C: "Lái xe máy", D: "Nấu ăn" }},
+{ question: "AI hẹp (Narrow AI) được thiết kế để thực hiện nhiệm vụ nào?", correct: "D", answers: { A: "Thực hiện nhiều nhiệm vụ trí tuệ khác nhau", B: "Tạo ra nội dung mới như văn bản và hình ảnh", C: "Vượt trội hơn con người trong mọi lĩnh vực", D: "Thực hiện một nhiệm vụ cụ thể" }},
+{ question: "Trí tuệ nhân tạo (AI) là gì?", correct: "A", answers: { A: "Một lĩnh vực trong khoa học máy tính", B: "Một loại phần mềm văn phòng", C: "Một ngôn ngữ lập trình", D: "Một thiết bị điện tử" }},
+{ question: "Ví dụ nào sau đây là của AI tạo sinh (Generative AI)?", correct: "D", answers: { A: "Siri và Alexa", B: "Deep Blue", C: "Hệ thống nhận diện khuôn mặt", D: "GPT-3 và DALL-E" }},
+{ question: "AI tổng quát (General AI) có khả năng gì?", correct: "D", answers: { A: "Vượt trội hơn con người trong mọi lĩnh vực", B: "Thực hiện một nhiệm vụ cụ thể", C: "Tạo ra nội dung mới như văn bản và hình ảnh", D: "Hiểu, học và áp dụng tri thức vào nhiều lĩnh vực khác nhau" }},
+{ question: "AI phản ứng (Reactive AI) có đặc điểm gì?", correct: "C", answers: { A: "Hiểu và phản ứng với cảm xúc của con người", B: "Có khả năng lưu trữ ký ức và học hỏi từ kinh nghiệm", C: "Chỉ phản ứng với các tình huống hiện tại dựa trên các quy tắc đã được lập trình sẵn", D: "Tự nhận thức về bản thân" }},
+{ question: "Ví dụ nào sau đây là của AI với bộ nhớ hạn chế (Limited Memory AI)?", correct: "B", answers: { A: "Máy chơi cờ Deep Blue của IBM", B: "Các xe tự lái", C: "GPT-3 và DALL-E", D: "Siri và Alexa" }},
+{ question: "Nhiệm vụ nào sau đây không phải là nhiệm vụ của AI?", correct: "D", answers: { A: "Học tập", B: "Nhận diện hình ảnh", C: "Xử lý ngôn ngữ tự nhiên", D: "Nấu ăn" }},
+{ question: "Lý thuyết về trí tuệ nhân tạo (Theory of Mind AI) là gì?", correct: "B", answers: { A: "AI có khả năng tự nhận thức về bản thân", B: "AI có khả năng hiểu và phản ứng với cảm xúc, suy nghĩ và mong muốn của con người", C: "AI có khả năng lưu trữ và sử dụng thông tin từ quá khứ", D: "AI chỉ phản ứng với các tình huống hiện tại" }},
+
+{ question: "AlphaGo được phát triển bởi công ty nào?", correct: "C", answers: { A: "IBM", B: "Microsoft", C: "DeepMind", D: "OpenAI" }},
+
+{ question: "AlphaGo học cách chơi cờ vây bằng cách nào?", correct: "A", answers: { A: "Phân tích hàng triệu nước đi từ các ván cờ của các kỳ thủ chuyên nghiệp", B: "Chơi cờ với con người", C: "Đọc sách về cờ vây", D: "Xem video về các trận đấu cờ vây" }},
+
+{ question: "Khả năng tự học của AlphaGo được phát triển thông qua phương pháp nào?", correct: "A", answers: { A: "Học tăng cường (reinforcement learning)", B: "Học từ sách giáo khoa", C: "Học từ các video hướng dẫn", D: "Học từ các bài giảng trực tuyến" }},
+
+{ question: "Chiến thắng của AlphaGo chứng minh khả năng vượt trội của AI trong lĩnh vực nào?", correct: "A", answers: { A: "Xử lý ngôn ngữ tự nhiên và suy luận từ dữ liệu", B: "Chơi cờ vua", C: "Phân tích tài chính", D: "Dự báo thời tiết" }},
+
+{ question: "AI giúp tăng cường hiệu quả và năng suất bằng cách nào?", correct: "A", answers: { A: "Tự động hóa các tác vụ lặp đi lặp lại", B: "Tăng số lượng nhân viên", C: "Giảm thời gian làm việc", D: "Tăng lương cho nhân viên" }},
+
+{ question: "AI được sử dụng trong y tế để làm gì?", correct: "A", answers: { A: "Chẩn đoán bệnh và phân tích hình ảnh y khoa", B: "Quản lý tài chính bệnh viện", C: "Tăng cường quảng cáo y tế", D: "Giảm chi phí thuốc men" }},
+
+{ question: "AI có thể giúp giải quyết vấn đề toàn cầu nào?", correct: "A", answers: { A: "Biến đổi khí hậu và quản lý tài nguyên", B: "Tăng dân số", C: "Giảm giá xăng dầu", D: "Tăng cường du lịch" }},
+
+{ question: "Xử lý ngôn ngữ tự nhiên (NLP) tập trung vào việc gì?", correct: "A", answers: { A: "Giúp máy tính hiểu và phản hồi ngôn ngữ con người", B: "Giúp máy tính chơi cờ", C: "Giúp máy tính điều khiển robot", D: "Giúp máy tính dự đoán thời tiết" }},
+
+{ question: "Ứng dụng nào sau đây thuộc lĩnh vực Thị giác máy tính (Computer Vision)?", correct: "B", answers: { A: "Dịch máy", B: "Nhận diện khuôn mặt", C: "Phân tích cảm xúc", D: "Đề xuất sản phẩm" }},
+
+{ question: "Hệ thống khuyến nghị (Recommender Systems) được sử dụng để làm gì?", correct: "A", answers: { A: "Đề xuất sản phẩm, dịch vụ hoặc nội dung cho người dùng", B: "Phân loại hình ảnh", C: "Chẩn đoán bệnh", D: "Điều khiển xe tự lái" }},
+
+{ question: "Học máy (Machine Learning - ML) giúp máy tính làm gì?", correct: "A", answers: { A: "Học từ dữ liệu và cải thiện hiệu suất theo thời gian", B: "Hiểu và phản hồi ngôn ngữ con người", C: "Điều khiển robot", D: "Nhận diện khuôn mặt" }},
+
+{ question: "Robot học (Robotics) tập trung vào việc gì?", correct: "A", answers: { A: "Phát triển các robot có khả năng thực hiện các nhiệm vụ tự động hoặc bán tự động", B: "Phân tích dữ liệu", C: "Dự đoán xu hướng thị trường", D: "Đề xuất sản phẩm" }},
+
+{ question: "Trí tuệ nhân tạo tổng quát (AGI) có mục tiêu gì?", correct: "A", answers: { A: "Phát triển các hệ thống AI có khả năng thực hiện bất kỳ nhiệm vụ trí tuệ nào mà con người có thể làm", B: "Tạo ra nội dung mới như văn bản và hình ảnh", C: "Phân loại hình ảnh", D: "Phát hiện gian lận" }},
+
+{ question: "IBM Watson Health sử dụng AI để làm gì trong lĩnh vực y tế?", correct: "B", answers: { A: "Tạo nội dung marketing", B: "Phân tích dữ liệu y tế và hỗ trợ chẩn đoán bệnh", C: "Điều khiển xe tự lái", D: "Quản lý năng lượng" }},
+
+{ question: "Ứng dụng nào sau đây sử dụng AI để cá nhân hóa quá trình học ngôn ngữ?", correct: "C", answers: { A: "Google Maps", B: "Tesla Autopilot", C: "Duolingo", D: "Betterment" }},
+
+{ question: "AI được sử dụng trong hệ thống nào để phát hiện các bất thường trong hình ảnh y tế như CT scan?", correct: "A", answers: { A: "Aidoc", B: "Plantix", C: "Jasper", D: "FarmBot" }},
+
+{ question: "PayPal sử dụng AI để làm gì trong lĩnh vực tài chính?", correct: "B", answers: { A: "Tạo nội dung marketing", B: "Phát hiện gian lận trong các giao dịch", C: "Quản lý danh mục đầu tư", D: "Điều khiển xe tự lái" }},
+
+{ question: "Ứng dụng nào sau đây sử dụng AI để phân tích cảm xúc của người tiêu dùng từ video và hình ảnh?", correct: "A", answers: { A: "Affectiva", B: "Nest Learning Thermostat", C: "Google Assistant", D: "FarmBot" }},
+
+{ question: "AI được sử dụng trong hệ thống nào để tối ưu hóa việc trồng trọt từ gieo hạt đến tưới nước và bón phân?", correct: "C", answers: { A: "Plantix", B: "Tesla Autopilot", C: "FarmBot", D: "Betterment" }},
+
+{ question: "Vũ khí hóa AI có thể gây ra mối đe dọa gì?", correct: "B", answers: { A: "Tăng cường hiệu quả công việc", B: "Gây ra mối đe dọa nghiêm trọng đến an ninh toàn cầu", C: "Cải thiện dịch vụ y tế", D: "Phát triển công nghệ mới" }},
+
+{ question: "AI có thể tạo ra và lan truyền thông tin sai lệch gây ảnh hưởng gì?", correct: "C", answers: { A: "Tăng cường hiệu quả công việc", B: "Ổn định xã hội", C: "Ảnh hưởng đến sự ổn định xã hội", D: "Cải thiện dịch vụ y tế" }},
+
+{ question: "Sự tập trung quyền lực AI vào tay một số ít công ty hoặc quốc gia có thể dẫn đến điều gì?", correct: "A", answers: { A: "Mất cân bằng quyền lực và ảnh hưởng tiêu cực đến kinh tế và chính trị", B: "Tăng cường hiệu quả công việc", C: "Cải thiện dịch vụ y tế", D: "Phát triển công nghệ mới" }},
+
+{ question: "Các chính phủ và tổ chức quốc tế cần làm gì để đảm bảo AI được phát triển và sử dụng an toàn và đạo đức?", correct: "B", answers: { A: "Tăng cường quảng cáo AI", B: "Thiết lập các quy định chặt chẽ", C: "Giảm giá các sản phẩm AI", D: "Tăng cường sản xuất AI" }},
+
+{ question: "Công nghệ nào được sử dụng để phát hiện và ngăn chặn các nội dung giả mạo do AI tạo ra?", correct: "D", answers: { A: "Deepfake", B: "Blockchain", C: "Machine Learning", D: "Công nghệ phát hiện giả mạo hiện đại" }},
+
+{ question: "Tại sao cần khuyến khích tư duy phản biện và kiểm chứng thông tin?", correct: "A", answers: { A: "Để giảm thiểu tác động của thông tin sai lệch", B: "Để tăng cường quảng cáo AI", C: "Để giảm giá các sản phẩm AI", D: "Để tăng cường sản xuất AI" }},
+{ question: "Tại sao cần thúc đẩy hợp tác quốc tế trong việc quản lý rủi ro từ AI?", correct: "A", answers: { A: "Để chia sẻ thông tin và kinh nghiệm", B: "Để tăng cường quảng cáo AI", C: "Để giảm giá các sản phẩm AI", D: "Để tăng cường sản xuất AI" }},
+
+];
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      const questionData = shuffledQuestions[currentQuestionIndex];
+      document.getElementById("question").innerText = `Question ${currentQuestionIndex + 1}: ${questionData.question}`;
+      document.getElementById("answerA").innerText = `A. ${questionData.answers.A}`;
+      document.getElementById("answerB").innerText = `B. ${questionData.answers.B}`;
+      document.getElementById("answerC").innerText = `C. ${questionData.answers.C}`;
+      document.getElementById("answerD").innerText = `D. ${questionData.answers.D}`;
+    }
+
+    function checkAnswer(selected) {
+      const questionData = shuffledQuestions[currentQuestionIndex];
+      if (selected === questionData.correct) {
+        currentStep++;
+        updateProgressBar();
+        moveCharacter();
+        if (currentStep < 10) {
+          currentQuestionIndex++;
+          loadQuestion();
+        } else {
+
+            alert("Thắng gòi Thắng gòi!");
+
+            currentStep = 1; // Đặt currentStep là 1 để nhân vật bắt đầu tại ô đầu tiên
+            startGame();
+        }
+      } else {
+        alert("Sai Đáp Án Rồi Cưng! Về Bước 1 Nhé!");
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuestions.length) {
+          loadQuestion(); // Tải câu hỏi tiếp theo nếu còn câu hỏi
+        }
+        for (let i = 2; i <= currentStep; i++) {
+          const step = document.getElementById(`step-${i}`);
+          step.classList.remove('green');
+          step.classList.add('gray');
+        }
+        // Giữ nguyên vị trí nếu đang ở câu hỏi đầu tiên
+        if (currentStep > 1) {
+          currentStep = 1;
+          updateProgressBar();
+          moveCharacter();
+        }
+      }
+    }
+    function updateProgressBar() {
+      for (let i = 1; i <= 10; i++) {
+        const step = document.getElementById(`step-${i}`);
+        if (i <= currentStep) {
+          step.classList.add('green');
+          step.classList.remove('gray');
+        } else {
+          step.classList.remove('green');
+        }
+      }
+    }
+
+    function moveCharacter() {
+      const character = document.getElementById('character');
+      const position = 500 - (currentStep * 50); // Đã tăng vị trí cho nhân vật
+      character.style.top = position + 'px';
+    }
+
+    function startGame() {
+      
+      shuffledQuestions = shuffleArray([...originalQuestions]).slice(0, 35);
+      currentStep = 1; // Đặt currentStep là 1 để nhân vật bắt đầu tại ô đầu tiên
+      currentQuestionIndex = 0;
+      updateProgressBar();
+      moveCharacter();
+      loadQuestion();
+      
+    }
+   /* function createPetal() {
+            const petal = document.createElement("div");
+            petal.classList.add("petal");
+
+            petal.style.left = Math.random() * 100 + "vw";
+            petal.style.animationDuration = Math.random() * 3 + 2 + "s"; // Thời gian rơi
+            petal.style.animationDelay = Math.random() * 2 + "s"; // Độ trễ rơi
+
+            document.body.appendChild(petal);
+
+            setTimeout(() => {
+                petal.remove();
+            }, 5000); // Sau 5 giây sẽ xoá cánh hoa
+        }
+
+        setInterval(createPetal, 300); // Tạo cánh hoa mỗi 300ms
+    */
+        function resetGame() {
+      currentStep = 1; // Reset step
+      currentQuestionIndex = 0; // Reset question index
+      attemptsLeft = 3; // Reset attempts
+      document.getElementById("attemptsRemaining").innerText = attemptsLeft; // Reset attempts display
+      updateCharacterPosition(); // Reset character position
+      shuffle(originalQuestions); // Shuffle questions
+      updateQuestion(); // Update question
+    }
+    window.onload = startGame;
+    function createPetal() {
+            const petal = document.createElement("div");
+            petal.classList.add("petal");
+            petal.style.left = Math.random() * 100 + "vw";
+            petal.style.animationDuration = Math.random() * 3 + 2 + "s"; // Thời gian rơi
+            petal.style.animationDelay = Math.random() * 2 + "s"; // Độ trễ rơi
+            document.body.appendChild(petal);
+            setTimeout(() => {
+                petal.remove();
+            }, 8000); // Sau 5 giây sẽ xoá cánh hoa
+        }
+        document.getElementById('autoplay').play();
+        setInterval(createPetal, 300); // Tạo cánh hoa mỗi 300ms
+    
+  </script>
+</body>
+</html>
